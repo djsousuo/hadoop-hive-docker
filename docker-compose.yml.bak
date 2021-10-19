@@ -1,0 +1,54 @@
+version: '3.3'
+services:
+    slave1:
+        container_name: Slave1
+        hostname: slave1
+        image: registry.cn-hangzhou.aliyuncs.com/hadoop_test/hadoop_base
+        entrypoint: /root/slave.sh
+        volumes:
+            - "./slave1.sh:/root/slave.sh"
+        networks:
+            hadoop:
+                ipv4_address: 172.19.0.3
+
+
+    slave2:
+        container_name: Slave2
+        hostname: slave2
+        image: registry.cn-hangzhou.aliyuncs.com/hadoop_test/hadoop_base
+        entrypoint: /root/slave.sh
+        volumes:
+            - "./slave2.sh:/root/slave.sh"
+        networks:
+            hadoop:
+                ipv4_address: 172.19.0.4
+
+
+    master:
+        container_name: Master
+        hostname: master
+        ports:
+            - '9870:9870'
+            - '8088:8088'
+            - '10000:10000'
+        image: registry.cn-hangzhou.aliyuncs.com/hadoop_test/hadoop_base
+        entrypoint: /root/master.sh
+        depends_on: 
+            - slave1
+            - slave2
+        volumes:
+            - "./apache-hive-3.1.2-bin:/usr/local/apache-hive-3.1.2-bin"
+            - "./master.sh:/root/master.sh"
+            - "./master_profile:/etc/profile"
+        networks:
+            hadoop:
+                ipv4_address: 172.19.0.2
+                
+
+networks:
+    hadoop:
+        driver: bridge
+        ipam:
+            config:
+            - subnet: 172.19.0.0/16
+

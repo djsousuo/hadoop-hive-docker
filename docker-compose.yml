@@ -1,0 +1,89 @@
+version: '3.3'
+services:
+    master:
+        container_name: Master
+        hostname: master
+        ports:
+            - '9870:9870'
+            - '8088:8088'
+            - '10000:10000'
+        image: registry.cn-hangzhou.aliyuncs.com/hadoop_test/hadoop_base
+        entrypoint: /root/master.sh
+        depends_on: 
+            - slave1
+            - slave2
+        volumes:
+            - "./apache-hive-3.1.2-bin:/usr/local/apache-hive-3.1.2-bin"
+            - "./master.sh:/root/master.sh"
+            - "./master_profile:/etc/profile"
+            - "./core-site.xml:/usr/local/hadoop/etc/hadoop/core-site.xml"
+            - "./apache-hive-3.1.2-bin/lib/mongo-hadoop-hive-2.0.2.jar:/usr/local/hadoop/lib/mongo-hadoop-hive-2.0.2.jar"
+            - "./apache-hive-3.1.2-bin/lib/mongo-hadoop-core-2.0.2.jar:/usr/local/hadoop/lib/mongo-hadoop-core-2.0.2.jar"
+            - "./apache-hive-3.1.2-bin/lib/mongo-java-driver-3.6.0.jar:/usr/local/hadoop/lib/mongo-java-driver-3.6.0.jar"
+        networks:
+            hadoop:
+                ipv4_address: 172.18.0.2
+
+
+    slave1:
+        container_name: Slave1
+        hostname: slave1
+        image: registry.cn-hangzhou.aliyuncs.com/hadoop_test/hadoop_base
+        entrypoint: /root/slave.sh
+        volumes:
+            - "./slave1.sh:/root/slave.sh"
+            - "./apache-hive-3.1.2-bin:/usr/local/apache-hive-3.1.2-bin"
+            - "./master.sh:/root/master.sh"
+            - "./master_profile:/etc/profile"
+            - "./core-site.xml:/usr/local/hadoop/etc/hadoop/core-site.xml"
+            - "./apache-hive-3.1.2-bin/lib/mongo-hadoop-hive-2.0.2.jar:/usr/local/hadoop/lib/mongo-hadoop-hive-2.0.2.jar"
+            - "./apache-hive-3.1.2-bin/lib/mongo-hadoop-core-2.0.2.jar:/usr/local/hadoop/lib/mongo-hadoop-core-2.0.2.jar"
+            - "./apache-hive-3.1.2-bin/lib/mongo-java-driver-3.6.0.jar:/usr/local/hadoop/lib/mongo-java-driver-3.6.0.jar"
+        networks:
+            hadoop:
+                ipv4_address: 172.18.0.3
+
+
+    slave2:
+        container_name: Slave2
+        hostname: slave2
+        image: registry.cn-hangzhou.aliyuncs.com/hadoop_test/hadoop_base
+        entrypoint: /root/slave.sh
+        volumes:
+            - "./slave2.sh:/root/slave.sh"
+            - "./apache-hive-3.1.2-bin:/usr/local/apache-hive-3.1.2-bin"
+            - "./master.sh:/root/master.sh"
+            - "./master_profile:/etc/profile"
+            - "./core-site.xml:/usr/local/hadoop/etc/hadoop/core-site.xml"
+            - "./apache-hive-3.1.2-bin/lib/mongo-hadoop-hive-2.0.2.jar:/usr/local/hadoop/lib/mongo-hadoop-hive-2.0.2.jar"
+            - "./apache-hive-3.1.2-bin/lib/mongo-hadoop-core-2.0.2.jar:/usr/local/hadoop/lib/mongo-hadoop-core-2.0.2.jar"
+            - "./apache-hive-3.1.2-bin/lib/mongo-java-driver-3.6.0.jar:/usr/local/hadoop/lib/mongo-java-driver-3.6.0.jar"
+        networks:
+            hadoop:
+                ipv4_address: 172.18.0.4
+
+    
+    mysql_hive:
+        container_name: Mysql_hive
+        hostname: mysql_hive
+        ports:
+            - '3306:3306'
+        image: mysql:8.0.18
+        environment:
+            - MYSQL_DATABASE=hive
+            - MYSQL_ROOT_PASSWORD=abc123456
+            - MYSQL_ROOT_HOST=%
+        volumes:
+            - "./mysql.sh:/root/mysql.sh"
+        networks:
+            hadoop:
+                ipv4_address: 172.18.0.5
+
+
+networks:
+    hadoop:
+        driver: bridge
+        ipam:
+            config:
+            - subnet: 172.18.0.0/24
+
